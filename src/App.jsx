@@ -1,13 +1,12 @@
 import { Canvas } from '@react-three/fiber'
-import { useState, lazy, Suspense } from 'react'
+import { useState } from 'react'
 import { Scene } from './components/Scene'
+import { ModelViewerAR } from './components/ModelViewerAR'
 import './index.css'
 import { useGLTF } from '@react-three/drei'
 
 useGLTF.preload('/models/santoku/scene.gltf')
 useGLTF.preload('/models/gyuto/scene.gltf')
-
-const MindARViewer = lazy(() => import('./components/MindARViewer').then(m => ({ default: m.MindARViewer })))
 
 const KNIFE_TYPES = {
   santoku: {
@@ -113,19 +112,10 @@ function App() {
 
   if (arMode) {
     return (
-      <Suspense fallback={
-        <div className="ar-loading-screen">
-          <div className="ar-loading-content">
-            <div className="ar-spinner large" />
-            <p>AR Yükleniyor...</p>
-          </div>
-        </div>
-      }>
-        <MindARViewer
-          knifeType={KNIFE_TYPES[activeKnifeType]}
-          onClose={() => setArMode(false)}
-        />
-      </Suspense>
+      <ModelViewerAR
+        knifeType={KNIFE_TYPES[activeKnifeType]}
+        onClose={() => setArMode(false)}
+      />
     )
   }
 
@@ -149,8 +139,7 @@ function App() {
           </button>
           <button
             className="btn btn-primary"
-            disabled
-            style={{ opacity: 0.5, cursor: 'not-allowed' }}
+            onClick={() => setArMode(true)}
           >
             📷 AR
           </button>
@@ -232,7 +221,7 @@ function App() {
         </div>
       )}
 
-      {/* Bıçak Tipi Seçici - Sabit konum */}
+      {/* Bıçak Tipi Seçici */}
       <div className="knife-selector">
         <button
           className="knife-selector-btn"
