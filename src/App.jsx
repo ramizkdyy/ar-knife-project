@@ -4,15 +4,11 @@ import { Scene } from './components/Scene'
 import './index.css'
 import { useGLTF } from '@react-three/drei'
 
-
-// Modelleri önceden yükle
 useGLTF.preload('/models/santoku/scene.gltf')
 useGLTF.preload('/models/gyuto/scene.gltf')
 
-// MindAR viewer'ı lazy load et
 const MindARViewer = lazy(() => import('./components/MindARViewer').then(m => ({ default: m.MindARViewer })))
 
-// Bıçak tipleri
 const KNIFE_TYPES = {
   santoku: {
     id: 'santoku',
@@ -44,7 +40,6 @@ const KNIFE_TYPES = {
   }
 }
 
-// Görünüm modları
 const VIEW_MODES = {
   NORMAL: 'normal',
   WIREFRAME: 'wireframe',
@@ -116,7 +111,6 @@ function App() {
   const selectedKnife = knives.find(k => k.id === selectedId)
   const selectedKnifeInfo = selectedKnife ? KNIFE_TYPES[selectedKnife.type] : null
 
-  // AR Modu aktifken
   if (arMode) {
     return (
       <Suspense fallback={
@@ -158,7 +152,7 @@ function App() {
             disabled
             style={{ opacity: 0.5, cursor: 'not-allowed' }}
           >
-            📷 AR (Yakında)
+            📷 AR
           </button>
         </div>
       </header>
@@ -238,58 +232,49 @@ function App() {
         </div>
       )}
 
-      {/* Alt Durum Barı */}
-      <div className="status-bar">
-        <div className="status-hint">
-          <kbd>Zemin</kbd>
-          <span>{selectedId ? 'Taşı' : 'Yerleştir'}</span>
-        </div>
+      {/* Bıçak Tipi Seçici - Sabit konum */}
+      <div className="knife-selector">
+        <button
+          className="knife-selector-btn"
+          onClick={() => setShowKnifeMenu(!showKnifeMenu)}
+        >
+          <span className="knife-selector-kanji">{KNIFE_TYPES[activeKnifeType].name}</span>
+          <span className="knife-selector-name">{KNIFE_TYPES[activeKnifeType].nameEn}</span>
+          <span className={`knife-selector-arrow ${showKnifeMenu ? 'open' : ''}`}>▼</span>
+        </button>
 
-        <div className="status-divider" />
-
-        <div className="status-hint">
-          <kbd>Bıçak</kbd>
-          <span>Seç</span>
-        </div>
-
-        <div className="status-divider" />
-
-        <div className="status-count">{knives.length} bıçak</div>
-
-        <div className="status-divider" />
-
-        {/* Bıçak Tipi Seçici */}
-        <div className="knife-dropdown">
-          <button
-            className="knife-dropdown-toggle"
-            onClick={() => setShowKnifeMenu(!showKnifeMenu)}
-          >
-            <span className="knife-dropdown-kanji">{KNIFE_TYPES[activeKnifeType].name}</span>
-            <span className="knife-dropdown-name">{KNIFE_TYPES[activeKnifeType].nameEn}</span>
-            <span className={`knife-dropdown-arrow ${showKnifeMenu ? 'open' : ''}`}>▼</span>
-          </button>
-
-          {showKnifeMenu && (
-            <div className="knife-dropdown-menu">
+        {showKnifeMenu && (
+          <>
+            <div className="knife-menu-backdrop" onClick={() => setShowKnifeMenu(false)} />
+            <div className="knife-menu">
               {Object.values(KNIFE_TYPES).map((knife) => (
                 <button
                   key={knife.id}
-                  className={`knife-dropdown-item ${activeKnifeType === knife.id ? 'active' : ''}`}
+                  className={`knife-menu-item ${activeKnifeType === knife.id ? 'active' : ''}`}
                   onClick={() => {
                     setActiveKnifeType(knife.id)
                     setShowKnifeMenu(false)
                   }}
                 >
-                  <span className="knife-dropdown-item-kanji">{knife.name}</span>
-                  <div className="knife-dropdown-item-info">
-                    <span className="knife-dropdown-item-name">{knife.nameEn}</span>
-                    <span className="knife-dropdown-item-usage">{knife.usage}</span>
+                  <span className="knife-menu-kanji">{knife.name}</span>
+                  <div className="knife-menu-info">
+                    <span className="knife-menu-name">{knife.nameEn}</span>
+                    <span className="knife-menu-usage">{knife.usage}</span>
                   </div>
                 </button>
               ))}
             </div>
-          )}
-        </div>
+          </>
+        )}
+      </div>
+
+      {/* Alt Durum Barı */}
+      <div className="status-bar">
+        <span className="status-text">
+          {selectedId ? 'Zemine dokun: Taşı' : 'Zemine dokun: Yerleştir'}
+        </span>
+        <span className="status-divider">•</span>
+        <span className="status-count">{knives.length} bıçak</span>
       </div>
 
       {/* 3D Canvas */}
